@@ -45,9 +45,9 @@ def main():
     """Entry point to generate subordinate keys/certs."""
     ca = CertAuth.load(ROOT_STEM, _PW)
 
-    _make_signer(ca, "Signer S1 TESTING")
-    _make_signer(ca, "Signer S2 TESTING")
-    _make_signer(ca, "Upload U1 TESTING")
+    _make_signer(ca, "Signer S1")
+    _make_signer(ca, "Signer S2")
+    _make_signer(ca, "Upload U1")
 
 
 if __name__ == "__main__":

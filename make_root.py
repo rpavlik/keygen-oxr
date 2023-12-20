@@ -13,7 +13,7 @@ _PW = b"asdf"
 
 def main():
     """Entry point for CA generation routine."""
-    ca = CertAuth.generate("OpenXR Android Root X1 TESTING")
+    ca = CertAuth.generate("OpenXR Android Root X1")
     ca.save(ROOT_STEM, _PW)
     ca.save_ca_cert(ROOT_STEM)
 

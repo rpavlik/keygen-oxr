@@ -22,7 +22,7 @@ CA_DURATION = 50 * 365
 DEFAULT_DURATION = 10 * 365
 """The approximate number of days in 10 years"""
 
-ROOT_STEM = "xr_root_x1_testing"
+ROOT_STEM = "xr_root_x1"
 
 _KEY_USAGE_SIGNING_ONLY = x509.KeyUsage(
     digital_signature=True,
