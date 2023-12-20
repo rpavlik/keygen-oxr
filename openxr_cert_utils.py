@@ -181,7 +181,7 @@ class CertAuth:
 
         print(f"Making and signing certificate for {name}")
 
-        basic_constraints = x509.BasicConstraints(ca=True, path_length=1)
+        basic_constraints = x509.BasicConstraints(ca=True, path_length=3)
         key_usage = x509.KeyUsage(
             digital_signature=True,
             content_commitment=False,
