@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2023, Collabora, Ltd.
+#
+# SPDX-License-Identifier: CC0-1.0
 *.csr
 *.key
 *.pem
@@ -6,3 +9,6 @@
 *.crt
 *.cer
 *.pyc
+__pycache__/
+id_public/
+id_private/
