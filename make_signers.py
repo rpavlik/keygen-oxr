@@ -5,24 +5,33 @@
 #
 # Original author: Rylie Pavlik <rylie.pavlik@collabora.com>
 """Generate subordinate keys and certs."""
-from openxr_cert_utils import ROOT_STEM, CertAuth, generate_private_key, make_x509_name
-from cryptography.hazmat.primitives import serialization
-
+import argparse
+from ruamel.yaml import YAML
 from cryptography.hazmat.primitives.serialization import pkcs12
+from cryptography.hazmat.primitives import serialization
+from openxr_cert_utils import CertAuth, generate_private_key, make_x509_name
 
-_PW = b"asdf"
 
-
-def _make_signer(ca, suffix: str):
+def _generate_signer(ca: CertAuth, identity: dict):
+    passphrase: bytes = identity["passphrase"].encode()
+    suffix = identity["suffix"]
     stem = suffix.lower().replace(" ", "_")
     cn = f"OpenXR Android Broker {suffix}"
+
+    print(f"\n{cn}")
+
     name = make_x509_name(cn)
 
     print("Generating private key")
     key = generate_private_key()
 
     print(f"Generating cert for {cn}")
-    cert = ca.make_cert(name, key.public_key())
+    cert = ca.make_cert(
+        name,
+        key.public_key(),
+        not_before=identity.get("not_before"),
+        not_after=identity.get("not_after"),
+    )
 
     # Write private key and cert to p12 file
     with open(f"{stem}_private.p12", "wb") as f:
@@ -32,22 +41,41 @@ def _make_signer(ca, suffix: str):
                 key,
                 cert,
                 None,
-                serialization.BestAvailableEncryption(_PW),
+                serialization.BestAvailableEncryption(passphrase),
             )
         )
 
     # Write cert to PEM file (.crt)
+
     with open(f"{stem}.crt", "wb") as f:
         f.write(cert.public_bytes(encoding=serialization.Encoding.PEM))
 
 
-def main():
+def _generate_signers(fn):
     """Entry point to generate subordinate keys/certs."""
-    ca = CertAuth.load(ROOT_STEM, _PW)
+    print(f"Generating from {fn}")
+    yaml = YAML(typ="safe")
+    with open(fn, "r", encoding="utf-8") as fp:
+        config = yaml.load(fp.read())
 
-    _make_signer(ca, "Signer S1")
-    _make_signer(ca, "Signer S2")
-    _make_signer(ca, "Upload U1")
+    root_stem = config["ca"]["fnstem"]
+    root_pw = str(config["ca"]["passphrase"]).encode()
+    ca = CertAuth.load(root_stem, root_pw)
+
+    for identity in config["identities"]:
+        _generate_signer(ca, identity)
+
+
+def main():
+    """Command line entry point."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "filename",
+        default="root.yml",
+        help="YAML file to configure the subordinate key generation",
+    )
+    args = parser.parse_args()
+    _generate_signers(args.filename)
 
 
 if __name__ == "__main__":

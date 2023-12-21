@@ -145,10 +145,17 @@ class CertAuth:
         self,
         subject: x509.Name,
         public_key,
+        not_after: Optional[datetime.datetime] = None,
+        not_before: Optional[datetime.datetime] = None,
     ):
         """Generate a 'signer'-class certificate for the subject and public key."""
         assert self.cert
 
+        print(f"Signing certificate for {subject.rfc4514_string()}")
+        not_before, not_after = _compute_dates(
+            DEFAULT_DURATION, not_before=not_before, not_after=not_after
+        )
+        print(f"Not valid before {not_before}, not valid after {not_after}")
         builder = (
             x509.CertificateBuilder()
             .subject_name(subject)
@@ -173,11 +180,8 @@ class CertAuth:
                 False,
             )
             .serial_number(x509.random_serial_number())
-            .not_valid_before(datetime.datetime.now(datetime.timezone.utc))
-            .not_valid_after(
-                datetime.datetime.now(datetime.timezone.utc)
-                + datetime.timedelta(days=DEFAULT_DURATION)
-            )
+            .not_valid_before(not_before)
+            .not_valid_after(not_after)
         )
         return builder.sign(self.key, algorithm=hashes.SHA256())
 

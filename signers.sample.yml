@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2023, Collabora, Ltd.
+#
+# SPDX-License-Identifier: CC0-1.0
+#
+# Original author: Rylie Pavlik <rylie.pavlik@collabora.com>
+ca:
+  fnstem: xr_android_root_x1
+  passphrase: asdf
+identities:
+  - suffix: Signer S1 TESTING
+    passphrase: asdfs1
+    not_before: 2023-12-21T00:00:00Z
+    not_after: 2033-12-21T00:00:00Z
+  - suffix: Signer S2 TESTING
+    passphrase: asdfs2
+    not_before: 2023-12-21T00:00:00Z
+    not_after: 2033-12-21T00:00:00Z
+  - suffix: Signer S3 TESTING
+    passphrase: asdfs3
+    not_before: 2023-12-21T00:00:00Z
+    not_after: 2033-12-21T00:00:00Z
+  - suffix: Upload U1 TESTING
+    passphrase: asdfu1
+    not_before: 2023-12-21T00:00:00Z
+    not_after: 2033-12-21T00:00:00Z
