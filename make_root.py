@@ -5,6 +5,7 @@
 #
 # Original author: Rylie Pavlik <rylie.pavlik@collabora.com>
 """Generate a root CA."""
+import argparse
 from ruamel.yaml import YAML
 from openxr_cert_utils import CertAuth
 
@@ -27,9 +28,7 @@ def generate_from_file(fn):
 
 
 def main():
-    """Command line entry point"""
-    import argparse
-
+    """Command line entry point."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "filename",
