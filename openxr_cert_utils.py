@@ -265,7 +265,9 @@ class CertAuth:
         """Save the CA's self-signed certificate."""
         assert self.cert
 
-        with open(f"{fn_stem}.crt", "wb") as f:
+        path = make_public_pem_crt_path(fn_stem)
+        print(f"Writing CA certificate to {path}")
+        with open(path, "wb") as f:
             f.write(self.cert.public_bytes(encoding=serialization.Encoding.PEM))
 
     @classmethod
