@@ -60,22 +60,6 @@ def generate_private_key() -> rsa.RSAPrivateKey:
     return rsa.generate_private_key(public_exponent=65537, key_size=4096)
 
 
-def _make_and_save_private_key(fn_stem, encryption) -> rsa.RSAPrivateKey:
-    """Generate and save a 4096-bit RSA key."""
-    print("Making private key")
-    key: rsa.RSAPrivateKey = generate_private_key()
-
-    with open(f"{fn_stem}_private.pem", "wb") as f:
-        f.write(
-            key.private_bytes(
-                encoding=serialization.Encoding.PEM,
-                format=serialization.PrivateFormat.TraditionalOpenSSL,
-                encryption_algorithm=encryption,
-            )
-        )
-    return key
-
-
 def make_key_and_csr(name):
     """Return a key and associated CSR."""
     key = generate_private_key()
