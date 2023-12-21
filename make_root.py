@@ -5,17 +5,39 @@
 #
 # Original author: Rylie Pavlik <rylie.pavlik@collabora.com>
 """Generate a root CA."""
-from openxr_cert_utils import ROOT_STEM, CertAuth
+from ruamel.yaml import YAML
+from openxr_cert_utils import CertAuth
 
 
-_PW = b"asdf"
+def generate_from_file(fn):
+    """Entry point for CA generation routine."""
+    print(f"Generating from {fn}")
+    yaml = YAML(typ="safe")
+    with open(fn, "r", encoding="utf-8") as fp:
+        config = yaml.load(fp.read())
+
+    fn_stem = config["fnstem"]
+    cn = config["cn"]
+    passphrase: str = config["passphrase"]
+    not_before = config.get("not_before")
+    not_after = config.get("not_after")
+    ca = CertAuth.generate(cn, not_before=not_before, not_after=not_after)
+    ca.save(fn_stem, passphrase.encode())
+    ca.save_ca_cert(fn_stem)
 
 
 def main():
-    """Entry point for CA generation routine."""
-    ca = CertAuth.generate("OpenXR Android Root X1")
-    ca.save(ROOT_STEM, _PW)
-    ca.save_ca_cert(ROOT_STEM)
+    """Command line entry point"""
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "filename",
+        default="root.yml",
+        help="YAML file to configure the CA root certificate",
+    )
+    args = parser.parse_args()
+    generate_from_file(args.filename)
 
 
 if __name__ == "__main__":

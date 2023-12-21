@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: 2023, Collabora, Ltd.
+#
+# SPDX-License-Identifier: CC0-1.0
+#
+# Original author: Rylie Pavlik <rylie.pavlik@collabora.com>
+fnstem: xr_android_root_x1
+cn: OpenXR Android Root X1 TESTING
+passphrase: asdf
+not_before: 2023-12-21T00:00:00Z
+not_after: 2073-12-21T00:00:00Z
