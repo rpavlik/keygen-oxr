@@ -7,6 +7,7 @@
 from dataclasses import dataclass, field
 import datetime
 from typing import Optional, cast
+from pathlib import Path
 
 from cryptography import x509
 from cryptography.x509.oid import NameOID
@@ -24,6 +25,10 @@ DEFAULT_DURATION = 10 * 365
 
 ROOT_STEM = "xr_root_x1"
 
+PUBLIC_PATH = Path("id_public")
+PRIVATE_PATH = Path("id_private")
+
+
 _KEY_USAGE_SIGNING_ONLY = x509.KeyUsage(
     digital_signature=True,
     content_commitment=False,
@@ -35,6 +40,22 @@ _KEY_USAGE_SIGNING_ONLY = x509.KeyUsage(
     encipher_only=False,
     decipher_only=False,
 )
+
+
+def make_private_p12_path(fn_stem: str) -> Path:
+    """Compute a path for a private PKCS12 file, and ensure the directory exists."""
+    PRIVATE_PATH.mkdir(exist_ok=True)
+    return PRIVATE_PATH / f"{fn_stem}_private.p12"
+
+
+def make_public_pem_crt_path(fn_stem: str) -> Path:
+    """
+    Compute a path for a public certificate file, and ensure the directory exists.
+
+    File is intended to be in PEM format, with a .crt extension.
+    """
+    PUBLIC_PATH.mkdir(exist_ok=True)
+    return PUBLIC_PATH / f"{fn_stem}.crt"
 
 
 def make_x509_name(common_name):
@@ -223,13 +244,13 @@ class CertAuth:
 
         return cls(subject=subject, key=key, cert=cert)
 
-    def save(self, fn_stem, password):
+    def save(self, fn_stem: str, password: bytes):
         """Save the keys and certificates making this CA to a PKCS#12 file."""
         assert self.cert
 
-        fn = f"{fn_stem}_private.p12"
-        print(f"Writing CA key and certificate to {fn}")
-        with open(fn, "wb") as f:
+        path = make_private_p12_path(fn_stem)
+        print(f"Writing CA key and certificate to {path}")
+        with open(path, "wb") as f:
             f.write(
                 pkcs12.serialize_key_and_certificates(
                     b"CA",
@@ -248,11 +269,11 @@ class CertAuth:
             f.write(self.cert.public_bytes(encoding=serialization.Encoding.PEM))
 
     @classmethod
-    def load(cls, fn_stem, password):
+    def load(cls, fn_stem: str, password: bytes):
         """Load a CA from a PKCS#12 file."""
-        fn = f"{fn_stem}_private.p12"
-        print(f"Loading CA key and certificate from {fn}")
-        with open(f"{fn_stem}_private.p12", "rb") as f:
+        path = make_private_p12_path(fn_stem)
+        print(f"Loading CA key and certificate from {path}")
+        with open(path, "rb") as f:
             key, cert, _ = pkcs12.load_key_and_certificates(
                 f.read(),
                 password,
