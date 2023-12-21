@@ -6,10 +6,18 @@
 # Original author: Rylie Pavlik <rylie.pavlik@collabora.com>
 """Generate subordinate keys and certs."""
 import argparse
+
 from ruamel.yaml import YAML
 from cryptography.hazmat.primitives.serialization import pkcs12
 from cryptography.hazmat.primitives import serialization
-from openxr_cert_utils import CertAuth, generate_private_key, make_x509_name
+
+from openxr_cert_utils import (
+    CertAuth,
+    generate_private_key,
+    make_private_p12_path,
+    make_public_pem_crt_path,
+    make_x509_name,
+)
 
 
 def _generate_signer(ca: CertAuth, identity: dict):
@@ -34,7 +42,9 @@ def _generate_signer(ca: CertAuth, identity: dict):
     )
 
     # Write private key and cert to p12 file
-    with open(f"{stem}_private.p12", "wb") as f:
+    p12_path = make_private_p12_path(stem)
+    print(f"Writing secrets to {p12_path}")
+    with open(p12_path, "wb") as f:
         f.write(
             pkcs12.serialize_key_and_certificates(
                 stem.encode("utf-8"),
@@ -46,8 +56,9 @@ def _generate_signer(ca: CertAuth, identity: dict):
         )
 
     # Write cert to PEM file (.crt)
-
-    with open(f"{stem}.crt", "wb") as f:
+    cert_path = make_public_pem_crt_path(stem)
+    print(f"Writing cert to {cert_path}")
+    with open(cert_path, "wb") as f:
         f.write(cert.public_bytes(encoding=serialization.Encoding.PEM))
 
 
