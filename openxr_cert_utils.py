@@ -97,6 +97,18 @@ def make_key_and_csr(name):
     return key, csr
 
 
+def _compute_dates(
+    default_days=DEFAULT_DURATION,
+    not_before: Optional[datetime.datetime] = None,
+    not_after: Optional[datetime.datetime] = None,
+) -> tuple[datetime.datetime, datetime.datetime]:
+    if not_before is None:
+        not_before = datetime.datetime.now(datetime.timezone.utc)
+    if not_after is None:
+        not_after = not_before + datetime.timedelta(days=default_days)
+    return (not_before, not_after)
+
+
 @dataclass
 class CertAuth:
     """A little certification authority for limited uses."""
@@ -170,7 +182,12 @@ class CertAuth:
         return builder.sign(self.key, algorithm=hashes.SHA256())
 
     @classmethod
-    def generate(cls, name):
+    def generate(
+        cls,
+        name,
+        not_after: Optional[datetime.datetime] = None,
+        not_before: Optional[datetime.datetime] = None,
+    ):
         """Generate a private key and self-signed cert for a new mini CA."""
         key = generate_private_key()
 
@@ -195,16 +212,19 @@ class CertAuth:
         )
         ski = x509.SubjectKeyIdentifier.from_public_key(key.public_key())
 
+        not_before, not_after = _compute_dates(
+            CA_DURATION, not_before=not_before, not_after=not_after
+        )
+
+        print(f"Not valid before {not_before}, not valid after {not_after}")
         cert = (
             x509.CertificateBuilder()
             .subject_name(subject)
             .issuer_name(subject)
             .public_key(key.public_key())
             .serial_number(x509.random_serial_number())
-            .not_valid_before(datetime.datetime.now(datetime.timezone.utc))
-            .not_valid_after(
-                datetime.datetime.now() + datetime.timedelta(days=CA_DURATION)
-            )
+            .not_valid_before(not_before)
+            .not_valid_after(not_after)
             .add_extension(ski, False)
             .add_extension(basic_constraints, True)
             .add_extension(
