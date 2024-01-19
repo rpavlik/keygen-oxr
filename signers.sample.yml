@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2023, Collabora, Ltd.
+# SPDX-FileCopyrightText: 2023-2024, Collabora, Ltd.
 #
 # SPDX-License-Identifier: CC0-1.0
 #
@@ -6,6 +6,10 @@
 ca:
   fnstem: xr_android_root_x1
   passphrase: asdf
+
+identity_cn_base: OpenXR Android Broker
+
+# The suffix will be made lower_snake_case to compute filenames
 identities:
   - suffix: Signer S1 TESTING
     passphrase: asdfs1

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2023, Collabora, Ltd.
+# Copyright 2023-2024, Collabora, Ltd.
 #
 # SPDX-License-Identifier: GPL-3.0-only
 #
@@ -20,11 +20,11 @@ from openxr_cert_utils import (
 )
 
 
-def _generate_signer(ca: CertAuth, identity: dict):
+def _generate_signer(ca: CertAuth, identity_cn_base: str, identity: dict):
     passphrase: bytes = identity["passphrase"].encode()
     suffix = identity["suffix"]
     stem = suffix.lower().replace(" ", "_")
-    cn = f"OpenXR Android Broker {suffix}"
+    cn = f"{identity_cn_base} {suffix}"
 
     print(f"\n{cn}")
 
@@ -73,8 +73,10 @@ def _generate_signers(fn):
     root_pw = str(config["ca"]["passphrase"]).encode()
     ca = CertAuth.load(root_stem, root_pw)
 
+    identity_cn_base = config.get("identity_cn_base", "OpenXR Android Broker")
+
     for identity in config["identities"]:
-        _generate_signer(ca, identity)
+        _generate_signer(ca, identity_cn_base, identity)
 
 
 def main():
